@@ -2,6 +2,9 @@
 
 // Zod - TypeScript-first validation library
 import { z } from 'zod';
+import postgres from "postgres";
+
+const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 // This schema will validate the formData before saving it to a database.
 const FormSchema = z.object({
@@ -22,4 +25,9 @@ export async function createInvoice(formData: FormData) {
     });
     const amountInCents = amount * 100;
     const date = new Date().toISOString().split('T')[0];
+
+    await sql`
+        INSERT INTO invoices (customer_id, amount, status, date)
+        VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
+    `;
 }
