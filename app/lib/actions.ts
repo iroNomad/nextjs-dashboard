@@ -5,6 +5,7 @@ import { z } from 'zod';
 import postgres from "postgres";
 import {revalidatePath} from "next/cache";
 import {redirect} from "next/navigation";
+import {error} from "next/dist/build/output/log";
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
@@ -63,6 +64,7 @@ export async function updateInvoice(id: string, formData: FormData) {
         WHERE id = ${id}`;
     }
     catch {
+        console.error(error)
         return {
             message: 'Database Error: Failed to Update Invoice',
         }
@@ -73,6 +75,8 @@ export async function updateInvoice(id: string, formData: FormData) {
 }
 
 export async function deleteInvoice(id: string) {
+    throw new Error('Failed to Delete Invoice');
+
     await sql`DELETE FROM invoices WHERE id = ${id}`;
     revalidatePath('/dashboard/invoices');
 }
